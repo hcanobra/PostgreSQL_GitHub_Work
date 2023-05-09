@@ -1,0 +1,589 @@
+****************************************************************************************
+/*
+
+- Provide a report of IA, DC and Success test results
+	5		"AT&T"		"Drive"		"M2M BLOCK"
+	7		"T-Mobile"	"Drive"		"M2M BLOCK"
+	1		"Verizon"	"Drive"		"M2M BLOCK"
+	77		"AT&T"		"Indoor"	"M2M SUCCESS"
+	633		"AT&T"		"Drive"		"M2M SUCCESS"
+	77		"T-Mobile"	"Indoor"	"M2M SUCCESS"
+	631		"T-Mobile"	"Drive"		"M2M SUCCESS"
+	637		"Verizon"	"Drive"		"M2M SUCCESS"
+	77		"Verizon"	"Indoor"	"M2M SUCCESS"
+*/
+
+SELECT
+	COUNT (*) AS "Number_of_test",
+	"Network",
+	"Activity",
+	"Call_Result"
+from public."Provo_UT_2022_1H_All_Mobile-to-Mobile_Tests_geo"
+WHERE 
+	"Call_Direction" = 'Originating'
+GROUP BY 
+	"Network",
+	"Activity",
+	"Call_Result"
+ORDER BY "Call_Result","Network"
+
+****************************************************************************************
+/*
+
+- Provide informiatn from the last reults data volume and stats.
+
+	738	"AT&T"		"Download"	35748.699238383226	29175.7639910618	4443.52724528302	92069.3360201511
+	738	"T-Mobile"	"Download"	151623.50841815057	115140.264739101	5583.2887580256		447394.810663847
+	738	"Verizon"	"Download"	108310.32831120086	65666.7972955991	3912.57502644437	321400.824982428
+*/
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Network",
+	"Data_Direction",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.5) within group (order by "Final_Test_Speed") AS "Median",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."Provo_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE "Data_Direction" = 'Download'  AND "Network_Types" IS NOT NULL
+GROUP BY 
+	"Network",
+	"Data_Direction"
+ORDER BY "Network"
+
+***************
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Network",
+	"Data_Direction",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.5) within group (order by "Final_Test_Speed") AS "Median",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."Provo_UT_2021_2H_All_Data_Throughput_Tests_geo"
+WHERE "Data_Direction" = 'Download'  AND "Network_Types" IS NOT NULL
+GROUP BY 
+	"Network",
+	"Data_Direction"
+ORDER BY "Network"
+
+
+
+****************************************************************************************
+/*
+
+- Provide volume information per techbology per carrier.
+
+134	"AT&T"		"Download"	"LTE"			24722.029250479212	19106.1144666097	2126.57259991448	57740.3775025748
+493	"AT&T"		"Download"	"NR NSA"		42634.31747174099	38977.9391497078	10523.6265593561	99306.6839061592
+111	"AT&T"		"Download"	"NR NSA, LTE"	18378.76517843608	14373.8679273751	2865.12911412803	53158.8716502116
+23	"T-Mobile"	"Download"	"LTE"			35563.22808801842	35910.1795432276	688.582520366087	65450.6371948156
+493	"T-Mobile"	"Download"	"NR NSA"		179217.9777633057	145299.86459618		10703.1469670615	492131.370535939
+208	"T-Mobile"	"Download"	"NR NSA, LTE"	106730.37332536325	73086.9347547331	5583.2887580256		311965.631829813
+11	"T-Mobile"	"Download"	"NR SA"			21112.8670593754	3597.91251855019	183.69879242405		187019.746459066
+1	"T-Mobile"	"Download"	"NR SA, LTE"	140651.360036253	140651.360036253	140651.360036253	140651.360036253		
+1	"T-Mobile"	"Download"	"UMTS, HSPA+"	1297.87147780255	1297.87147780255	1297.87147780255	1297.87147780255
+186	"Verizon"	"Download"	"LTE"			56373.10315158191	34136.325828281		1431.7037037037		193623.442092154
+466	"Verizon"	"Download"	"NR NSA"		140585.10210372056	104966.12856676		8953.2382461701		357665.246461199
+86	"Verizon"	"Download"	"NR NSA, LTE"	45755.43636207304	23395.9081520104	2968.13716132616	179239.569165787
+*/
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Network",
+	"Data_Direction",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.5) within group (order by "Final_Test_Speed") AS "Median",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."Provo_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE "Data_Direction" = 'Download'  AND "Network_Types" IS NOT NULL
+GROUP BY 
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+ORDER BY "Network"
+
+****************************************************************************************
+/*
+
+- Provide Verizon volume information per techbology.
+
+1	"Verizon"	"Download"	"5G mmW/5G UWB/CBand"	"NR NSA"	215518.033155832	215518.033155832	215518.033155832
+282	"Verizon"	"Download"	"C Band"				"NR NSA"	186710.140792681	35157.0749943472	387292.027214983
+183	"Verizon"	"Download"	"5G NW"					"NR NSA"	37972.1664943905	6404.94670452547	168900.098031338
+*/
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Network",
+	"Data_Direction",
+	'5G NW' AS "5G Network",
+	"Network_Types",
+	percentile_disc(0.5) within group (order by "Final_Test_Speed") AS "Median",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."Provo_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	and
+	"5G_Band_CC1" = 5
+	and
+	"Network" = 'Verizon'
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Network",
+	"Data_Direction",
+	'C Band' AS "5G Network",
+	"Network_Types",
+	percentile_disc(0.5) within group (order by "Final_Test_Speed") AS "Median",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."Provo_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	and
+	"5G_Band_CC1" = 77
+	and
+	"Network" = 'Verizon'
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+	
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Network",
+	"Data_Direction",
+	'5G mmW' AS "5G Network",
+	"Network_Types",
+	percentile_disc(0.5) within group (order by "Final_Test_Speed") AS "Median",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."Provo_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	and
+	"5G_Band_CC1" = 261
+	and
+	"Network" = 'Verizon'
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+	
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Network",
+	"Data_Direction",
+	'5G mmW/5G UWB/CBand' AS "5G Network",
+	"Network_Types",
+	percentile_disc(0.5) within group (order by "Final_Test_Speed") AS "Median",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."Provo_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	and
+	"5G_Band_CC1" IS NULL
+	and
+	"Network" = 'Verizon'
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+
+****************************************************************************************
+
+# State scor COUNT
+
+select 
+	*
+from public."Market_Scores_data"
+where 
+	"Half" like ('%2022%')
+	and
+	"Measure_Name" = 'Overall'
+	and
+	"Carrier_Name" in
+					(
+						'AT&T',
+						'Verizon'
+					)
+	and
+	"Market_Name" in
+					(
+						'PROVO, UT',
+						'SALT LAKE CITY, UT',
+						'Utah State',
+						'OGDEN, UT'
+					)
+
+order by "Carrier_Name"
+
+
+
+
+
+
+
+
+**********
+
+
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'LTE' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	AND 
+	"Network_Types" = 'LTE'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'5G NW' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	AND
+	"5G_Band_CC1" = 5
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'C Band' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	and
+	"5G_Band_CC1" = 77
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+	
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'5G mmW' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	and
+	"5G_Band_CC1" = 261
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+	
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'5G mmW/5G UWB/CBand' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_1H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	and
+	"5G_Band_CC1" IS NULL
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+
+	
+	
+UNION 
+	
+	
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'LTE' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_2H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	and 
+	"Network_Types" = 'LTE'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'5G NW' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_2H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	and
+	"5G_Band_CC1" = 5
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'C Band' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_2H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	and
+	"5G_Band_CC1" = 77
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+	
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'5G mmW' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_2H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	and
+	"5G_Band_CC1" = 261
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+	
+UNION 
+
+SELECT 
+	COUNT(*) AS "Number_of_test",
+	"Collection",
+	"Network",
+	"Data_Direction",
+	'5G mmW/5G UWB/CBand' AS "Technology",
+	"Network_Types",
+	AVG ("Final_Test_Speed") AS "Mean",
+	percentile_disc(0.05) within group (order by "Final_Test_Speed") AS "5th_percentile",
+	percentile_disc(0.95) within group (order by "Final_Test_Speed") AS "95th_percentile"
+from public."SaltLakeCity_UT_2022_2H_All_Data_Throughput_Tests_geo"
+WHERE 
+	"Data_Direction" = 'Download'  
+	AND 
+	"Network_Types" IS NOT NULL
+	AND
+	"Activity" != 'Drive'
+	AND
+	"Network" = 'Verizon'
+	and
+	"5G_Band_CC1" IS NULL
+	and 
+	"Network_Types" = 'NR NSA'
+
+GROUP BY 
+	"Collection",
+	"Network",
+	"Data_Direction",
+	"Network_Types"
+	
+ORDER BY
+	"Technology",
+	"Collection"
+	
+******
